@@ -1,0 +1,10 @@
+# Solo hace falta si el directorio público del servidor es esta carpeta
+# (y no "publico"): bloquea config.php y privado, y sirve todo desde publico.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^config\.php$ - [F]
+  RewriteRule ^privado(/|$) - [F]
+  RewriteRule ^README\.md$ - [F]
+  RewriteCond %{REQUEST_URI} !/publico/
+  RewriteRule ^(.*)$ publico/$1 [L]
+</IfModule>

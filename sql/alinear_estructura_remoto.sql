@@ -1,0 +1,401 @@
+-- Alinea la estructura de la base remota (viracashphp, MySQL 8.0.41) con la de
+-- desarrollo (viracash_original.sql del 11/09/2026) SIN tocar datos: tablas y
+-- columnas que faltan, dos claves primarias, dos columnas de
+-- fza_traspasos_solicitudes e indices secundarios que faltan.
+-- Generado el 2026-09-11 13:54 a partir de la comparacion de DBComparer
+-- (desarrollo contra copia local del remoto) y de INFORMATION_SCHEMA del remoto.
+-- Idempotente: se puede repetir; cada paso comprueba antes de actuar.
+-- Revisar antes de ejecutar. Reversion: alinear_estructura_remoto_reversion.sql.
+
+SET NAMES utf8mb4 COLLATE utf8mb4_spanish_ci;
+
+-- ---------------------------------------------------------------------
+-- 1. Tablas que no existen en el remoto (solo estructura, sin datos)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `fza_movimientos_recalculos_pendientes` (
+  `NUMERO_MOV_MOVREC` varchar(20) NOT NULL,
+  `CODIGO_EMP_MOVREC` varchar(20) NOT NULL DEFAULT '',
+  `CODIGO_ALM_MOVREC` varchar(10) NOT NULL,
+  `CODIGO_UNIDAD_MOVREC` varchar(50) NOT NULL,
+  `INSTANTE_DESDE_MOVREC` datetime NOT NULL,
+  `MOTIVO_MOVREC` varchar(255) NOT NULL,
+  `ESTADO_MOVREC` varchar(20) NOT NULL DEFAULT 'PENDIENTE',
+  `ESPROCESADO_MOVREC` varchar(1) NOT NULL DEFAULT 'N',
+  `VERSION_MOVREC` int NOT NULL DEFAULT '1',
+  `CONTADOR_INTENTOS_MOVREC` int NOT NULL DEFAULT '0',
+  `INSTANTE_PROXIMO_INTENTO_MOVREC` datetime NULL DEFAULT NULL,
+  `TOKEN_RECLAMACION_MOVREC` char(36) NULL DEFAULT NULL,
+  `INSTANTE_RECLAMACION_MOVREC` datetime NULL DEFAULT NULL,
+  `INSTANTE_LIMITE_RECLAMACION_MOVREC` datetime NULL DEFAULT NULL,
+  `MENSAJE_ERROR_MOVREC` text NULL DEFAULT NULL,
+  `RESUMEN_CORRECCION_MOVREC` text NULL DEFAULT NULL,
+  `INSTANTE_PROCESADO_MOVREC` datetime NULL DEFAULT NULL,
+  `INSTANTE_ALTA` datetime NOT NULL,
+  `USUARIO_ALTA` varchar(50) NOT NULL,
+  `INSTANTE_MODIF` datetime NULL DEFAULT NULL,
+  `USUARIO_MODIF` varchar(50) NULL DEFAULT NULL,
+  PRIMARY KEY (`NUMERO_MOV_MOVREC`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+
+CREATE TABLE IF NOT EXISTS `fza_prestashop_cola_eventos` (
+  `ID_PSCEV` bigint NOT NULL AUTO_INCREMENT,
+  `ID_PSCOLA_PSCEV` bigint NOT NULL,
+  `ID_RECLAMACION_PSCEV` char(36) NULL DEFAULT NULL,
+  `VERSION_RECLAMADA_PSCEV` bigint unsigned NULL DEFAULT NULL,
+  `CONTADOR_INTENTO_PSCEV` int NOT NULL DEFAULT '0',
+  `ORDEN_OPERACION_PSCEV` int NOT NULL DEFAULT '0',
+  `METODO_HTTP_PSCEV` varchar(10) NOT NULL,
+  `RECURSO_HTTP_PSCEV` varchar(1000) NOT NULL,
+  `ESTADO_HTTP_PSCEV` int NOT NULL DEFAULT '0',
+  `TEXTO_ESTADO_PSCEV` varchar(255) NULL DEFAULT NULL,
+  `PETICION_PSCEV` longtext NULL DEFAULT NULL,
+  `RESPUESTA_PSCEV` longtext NULL DEFAULT NULL,
+  `RESULTADO_PSCEV` varchar(20) NOT NULL,
+  `MENSAJE_PSCEV` text NULL DEFAULT NULL,
+  `CANTIDAD_MILISEGUNDOS_PSCEV` bigint unsigned NOT NULL DEFAULT '0',
+  `INSTANTE_INICIO_PSCEV` datetime NOT NULL,
+  `INSTANTE_FIN_PSCEV` datetime NOT NULL,
+  `INSTANTE_ALTA` datetime NOT NULL,
+  `USUARIO_ALTA` varchar(50) NULL DEFAULT NULL,
+  `INSTANTE_MODIF` datetime NULL DEFAULT NULL,
+  `USUARIO_MODIF` varchar(50) NULL DEFAULT NULL,
+  PRIMARY KEY (`ID_PSCEV`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+
+CREATE TABLE IF NOT EXISTS `fza_tarifas_descuento_condiciones` (
+  `CODIGO_TAR_TARDCO` varchar(10) NOT NULL,
+  `MODO_TARDCO` varchar(20) NOT NULL,
+  `CODIGO_PROP_TARDCO` varchar(20) NOT NULL,
+  `POLITICA_SIN_VALOR_TARDCO` varchar(20) NOT NULL DEFAULT 'NO_APLICAR',
+  `INSTANTE_MODIF` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `INSTANTE_ALTA` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `USUARIO_ALTA` varchar(100) NOT NULL,
+  `USUARIO_MODIF` varchar(100) NOT NULL,
+  PRIMARY KEY (`CODIGO_TAR_TARDCO`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+
+CREATE TABLE IF NOT EXISTS `fza_tarifas_descuento_valores` (
+  `CODIGO_TAR_TARDVA` varchar(10) NOT NULL,
+  `ID_PV_TARDVA` int NOT NULL,
+  `INSTANTE_MODIF` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `INSTANTE_ALTA` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `USUARIO_ALTA` varchar(100) NOT NULL,
+  `USUARIO_MODIF` varchar(100) NOT NULL,
+  PRIMARY KEY (`CODIGO_TAR_TARDVA`,`ID_PV_TARDVA`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+
+CREATE TABLE IF NOT EXISTS `fza_ventas_ws_cola_intentos` (
+  `ID_VWSCI` bigint NOT NULL AUTO_INCREMENT,
+  `ID_VWSC_VWSCI` bigint NOT NULL,
+  `ID_EVENTO_VWSCI` char(36) NOT NULL,
+  `CONTADOR_INTENTO_VWSCI` int NOT NULL DEFAULT '0',
+  `ID_PETICION_VWSCI` varchar(64) NULL DEFAULT NULL,
+  `METODO_HTTP_VWSCI` varchar(10) NOT NULL,
+  `RECURSO_HTTP_VWSCI` varchar(1000) NOT NULL,
+  `ESTADO_HTTP_VWSCI` int NOT NULL DEFAULT '0',
+  `PETICION_VWSCI` longtext NULL DEFAULT NULL,
+  `RESPUESTA_VWSCI` longtext NULL DEFAULT NULL,
+  `RESULTADO_VWSCI` varchar(20) NOT NULL,
+  `MENSAJE_VWSCI` text NULL DEFAULT NULL,
+  `CANTIDAD_MILISEGUNDOS_VWSCI` bigint unsigned NOT NULL DEFAULT '0',
+  `INSTANTE_INICIO_VWSCI` datetime NOT NULL,
+  `INSTANTE_FIN_VWSCI` datetime NOT NULL,
+  `INSTANTE_ALTA` datetime NOT NULL,
+  `USUARIO_ALTA` varchar(50) NULL DEFAULT NULL,
+  `INSTANTE_MODIF` datetime NULL DEFAULT NULL,
+  `USUARIO_MODIF` varchar(50) NULL DEFAULT NULL,
+  PRIMARY KEY (`ID_VWSCI`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+
+-- ---------------------------------------------------------------------
+-- 2. Columnas que faltan (en la misma posicion que en desarrollo)
+-- ---------------------------------------------------------------------
+-- Columna fza_articulos_fotos.ORDEN_FOT
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_articulos_fotos' AND COLUMN_NAME = 'ORDEN_FOT') = 0,
+  'ALTER TABLE `fza_articulos_fotos` ADD COLUMN `ORDEN_FOT` int unsigned NOT NULL DEFAULT ''1'' COMMENT ''Posición 1-based dentro del artículo o unidad'' AFTER `CODIGO_UNIDAD_FOT`',
+  'SELECT "fza_articulos_fotos.ORDEN_FOT ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Columna fza_compras_sesiones.ESCOPIAR_DESCRIPCION_FAM_SES
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_compras_sesiones' AND COLUMN_NAME = 'ESCOPIAR_DESCRIPCION_FAM_SES') = 0,
+  'ALTER TABLE `fza_compras_sesiones` ADD COLUMN `ESCOPIAR_DESCRIPCION_FAM_SES` varchar(1) NOT NULL DEFAULT ''S'' AFTER `ESFORMATO_DISTRIBUIDO_SES`',
+  'SELECT "fza_compras_sesiones.ESCOPIAR_DESCRIPCION_FAM_SES ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Columna fza_documentos_trabajo_lineas.CODIGO_EMP_ORIGEN_DTL
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_documentos_trabajo_lineas' AND COLUMN_NAME = 'CODIGO_EMP_ORIGEN_DTL') = 0,
+  'ALTER TABLE `fza_documentos_trabajo_lineas` ADD COLUMN `CODIGO_EMP_ORIGEN_DTL` varchar(20) NULL DEFAULT NULL AFTER `ORIGEN_DTL`',
+  'SELECT "fza_documentos_trabajo_lineas.CODIGO_EMP_ORIGEN_DTL ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Columna fza_documentos_trabajo_lineas.TIPO_DOCUMENTO_ORIGEN_DTL
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_documentos_trabajo_lineas' AND COLUMN_NAME = 'TIPO_DOCUMENTO_ORIGEN_DTL') = 0,
+  'ALTER TABLE `fza_documentos_trabajo_lineas` ADD COLUMN `TIPO_DOCUMENTO_ORIGEN_DTL` varchar(5) NULL DEFAULT NULL AFTER `CODIGO_EMP_ORIGEN_DTL`',
+  'SELECT "fza_documentos_trabajo_lineas.TIPO_DOCUMENTO_ORIGEN_DTL ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Columna fza_documentos_trabajo_lineas.SERIE_DOCUMENTO_ORIGEN_DTL
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_documentos_trabajo_lineas' AND COLUMN_NAME = 'SERIE_DOCUMENTO_ORIGEN_DTL') = 0,
+  'ALTER TABLE `fza_documentos_trabajo_lineas` ADD COLUMN `SERIE_DOCUMENTO_ORIGEN_DTL` varchar(20) NULL DEFAULT NULL AFTER `TIPO_DOCUMENTO_ORIGEN_DTL`',
+  'SELECT "fza_documentos_trabajo_lineas.SERIE_DOCUMENTO_ORIGEN_DTL ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Columna fza_documentos_trabajo_lineas.NUMERO_DOCUMENTO_ORIGEN_DTL
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_documentos_trabajo_lineas' AND COLUMN_NAME = 'NUMERO_DOCUMENTO_ORIGEN_DTL') = 0,
+  'ALTER TABLE `fza_documentos_trabajo_lineas` ADD COLUMN `NUMERO_DOCUMENTO_ORIGEN_DTL` varchar(20) NULL DEFAULT NULL AFTER `SERIE_DOCUMENTO_ORIGEN_DTL`',
+  'SELECT "fza_documentos_trabajo_lineas.NUMERO_DOCUMENTO_ORIGEN_DTL ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Columna fza_documentos_trabajo_lineas.LINEA_DOCUMENTO_ORIGEN_DTL
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_documentos_trabajo_lineas' AND COLUMN_NAME = 'LINEA_DOCUMENTO_ORIGEN_DTL') = 0,
+  'ALTER TABLE `fza_documentos_trabajo_lineas` ADD COLUMN `LINEA_DOCUMENTO_ORIGEN_DTL` varchar(100) NULL DEFAULT NULL AFTER `NUMERO_DOCUMENTO_ORIGEN_DTL`',
+  'SELECT "fza_documentos_trabajo_lineas.LINEA_DOCUMENTO_ORIGEN_DTL ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Columna fza_inventarios_recuentos.INSTANTE_RECUENTO_UTC_INVREC
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_inventarios_recuentos' AND COLUMN_NAME = 'INSTANTE_RECUENTO_UTC_INVREC') = 0,
+  'ALTER TABLE `fza_inventarios_recuentos` ADD COLUMN `INSTANTE_RECUENTO_UTC_INVREC` datetime NULL DEFAULT NULL AFTER `INSTANTE_RECUENTO_INVREC`',
+  'SELECT "fza_inventarios_recuentos.INSTANTE_RECUENTO_UTC_INVREC ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Columna fza_traspasos_solicitudes.TIPO_TRSOL
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_traspasos_solicitudes' AND COLUMN_NAME = 'TIPO_TRSOL') = 0,
+  'ALTER TABLE `fza_traspasos_solicitudes` ADD COLUMN `TIPO_TRSOL` varchar(20) NOT NULL DEFAULT ''MANUAL'' COMMENT ''MANUAL=petición ordinaria, AUTO=reposición desde ventas'' AFTER `USUARIO_MODIF`',
+  'SELECT "fza_traspasos_solicitudes.TIPO_TRSOL ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Columna fza_traspasos_solicitudes.INSTANTE_VENTAS_DESDE_TRSOL
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_traspasos_solicitudes' AND COLUMN_NAME = 'INSTANTE_VENTAS_DESDE_TRSOL') = 0,
+  'ALTER TABLE `fza_traspasos_solicitudes` ADD COLUMN `INSTANTE_VENTAS_DESDE_TRSOL` datetime NULL DEFAULT NULL COMMENT ''Inicio inclusivo de las ventas'' AFTER `TIPO_TRSOL`',
+  'SELECT "fza_traspasos_solicitudes.INSTANTE_VENTAS_DESDE_TRSOL ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Columna fza_traspasos_solicitudes.INSTANTE_VENTAS_HASTA_TRSOL
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_traspasos_solicitudes' AND COLUMN_NAME = 'INSTANTE_VENTAS_HASTA_TRSOL') = 0,
+  'ALTER TABLE `fza_traspasos_solicitudes` ADD COLUMN `INSTANTE_VENTAS_HASTA_TRSOL` datetime NULL DEFAULT NULL COMMENT ''Fin exclusivo de las ventas'' AFTER `INSTANTE_VENTAS_DESDE_TRSOL`',
+  'SELECT "fza_traspasos_solicitudes.INSTANTE_VENTAS_HASTA_TRSOL ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Columna fza_traspasos_solicitudes_lineas.CODIGO_PRV_TRSOLLIN
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_traspasos_solicitudes_lineas' AND COLUMN_NAME = 'CODIGO_PRV_TRSOLLIN') = 0,
+  'ALTER TABLE `fza_traspasos_solicitudes_lineas` ADD COLUMN `CODIGO_PRV_TRSOLLIN` varchar(20) NULL DEFAULT NULL COMMENT ''Proveedor histórico de la venta'' AFTER `USUARIO_MODIF`',
+  'SELECT "fza_traspasos_solicitudes_lineas.CODIGO_PRV_TRSOLLIN ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Columna fza_traspasos_solicitudes_lineas.RAZON_SOCIAL_PRV_TRSOLLIN
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_traspasos_solicitudes_lineas' AND COLUMN_NAME = 'RAZON_SOCIAL_PRV_TRSOLLIN') = 0,
+  'ALTER TABLE `fza_traspasos_solicitudes_lineas` ADD COLUMN `RAZON_SOCIAL_PRV_TRSOLLIN` varchar(200) NULL DEFAULT NULL COMMENT ''Nombre histórico del proveedor'' AFTER `CODIGO_PRV_TRSOLLIN`',
+  'SELECT "fza_traspasos_solicitudes_lineas.RAZON_SOCIAL_PRV_TRSOLLIN ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- ---------------------------------------------------------------------
+-- 3. Columnas con otra definicion en el remoto (MODIFY es repetible)
+-- ---------------------------------------------------------------------
+-- fza_traspasos_solicitudes.FECHA_TRSOL: antes date NULL DEFAULT NULL
+ALTER TABLE `fza_traspasos_solicitudes` MODIFY COLUMN `FECHA_TRSOL` datetime NULL DEFAULT CURRENT_TIMESTAMP;
+-- fza_traspasos_solicitudes.ESTADO_TRSOL: antes varchar(20) NOT NULL DEFAULT 'PENDIENTE' COMMENT 'PENDIENTE, PARCIAL, ATENDIDA, RECHAZADA, CANCELADA'
+ALTER TABLE `fza_traspasos_solicitudes` MODIFY COLUMN `ESTADO_TRSOL` varchar(20) NULL DEFAULT 'PENDIENTE' COMMENT 'Estado de peticiones MANUAL; NULL para AUTO';
+
+-- ---------------------------------------------------------------------
+-- 4. Claves primarias (en una sola sentencia, sin estado intermedio)
+-- ---------------------------------------------------------------------
+-- fza_articulos_fotos: la clave pasa a incluir ORDEN_FOT (varias fotos por unidad)
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_articulos_fotos' AND INDEX_NAME = 'PRIMARY' AND COLUMN_NAME = 'ORDEN_FOT' AND SEQ_IN_INDEX = 3) = 0,
+  'ALTER TABLE `fza_articulos_fotos` DROP PRIMARY KEY, ADD PRIMARY KEY (`CODIGO_ART_FOT`,`CODIGO_UNIDAD_FOT`,`ORDEN_FOT`)',
+  'SELECT "fza_articulos_fotos: clave primaria ya incluye ORDEN_FOT"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- fza_contadores: mismo orden de columnas en la clave que en desarrollo
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_contadores' AND INDEX_NAME = 'PRIMARY' AND COLUMN_NAME = 'EMPRESA_CON' AND SEQ_IN_INDEX = 2) = 0,
+  'ALTER TABLE `fza_contadores` DROP PRIMARY KEY, ADD PRIMARY KEY (`TIPO_DOC_CON`,`EMPRESA_CON`,`SERIE_CON`)',
+  'SELECT "fza_contadores: clave primaria ya en el orden de desarrollo"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- ---------------------------------------------------------------------
+-- 5. Indices secundarios que faltan (lista de DBComparer)
+-- ---------------------------------------------------------------------
+-- Indice fza_albaranes.IDX_ALB_EMP_INSTANTE
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_albaranes' AND INDEX_NAME = 'IDX_ALB_EMP_INSTANTE') = 0,
+  'ALTER TABLE `fza_albaranes` ADD INDEX `IDX_ALB_EMP_INSTANTE` (`CODIGO_EMP_ALB`, `INSTANTE_ALTA`)',
+  'SELECT "fza_albaranes.IDX_ALB_EMP_INSTANTE ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_albaranes_compra.IDX_ALBC_EMP_INSTANTE
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_albaranes_compra' AND INDEX_NAME = 'IDX_ALBC_EMP_INSTANTE') = 0,
+  'ALTER TABLE `fza_albaranes_compra` ADD INDEX `IDX_ALBC_EMP_INSTANTE` (`CODIGO_EMP_ALBC`, `INSTANTE_ALTA`)',
+  'SELECT "fza_albaranes_compra.IDX_ALBC_EMP_INSTANTE ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_articulos.CODIGO
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_articulos' AND INDEX_NAME = 'CODIGO') = 0,
+  'ALTER TABLE `fza_articulos` ADD INDEX `CODIGO` (`CODIGO_ART_ART`)',
+  'SELECT "fza_articulos.CODIGO ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_articulos.IDX_ARTICULOS_FAMILIA
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_articulos' AND INDEX_NAME = 'IDX_ARTICULOS_FAMILIA') = 0,
+  'ALTER TABLE `fza_articulos` ADD INDEX `IDX_ARTICULOS_FAMILIA` (`CODIGO_FAM_ART`)',
+  'SELECT "fza_articulos.IDX_ARTICULOS_FAMILIA ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_articulos.IDX_ARTICULOS_FAMILIA_STAT
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_articulos' AND INDEX_NAME = 'IDX_ARTICULOS_FAMILIA_STAT') = 0,
+  'ALTER TABLE `fza_articulos` ADD INDEX `IDX_ARTICULOS_FAMILIA_STAT` (`CODIGO_FAM_ART`, `ESACTIVO_ART`)',
+  'SELECT "fza_articulos.IDX_ARTICULOS_FAMILIA_STAT ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_articulos.IDX_ART_ESWEB
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_articulos' AND INDEX_NAME = 'IDX_ART_ESWEB') = 0,
+  'ALTER TABLE `fza_articulos` ADD INDEX `IDX_ART_ESWEB` (`ESWEB_ART`)',
+  'SELECT "fza_articulos.IDX_ART_ESWEB ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_articulos.TIPO_VARIACION_ART
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_articulos' AND INDEX_NAME = 'TIPO_VARIACION_ART') = 0,
+  'ALTER TABLE `fza_articulos` ADD INDEX `TIPO_VARIACION_ART` (`TIPO_VARIACION_ART`)',
+  'SELECT "fza_articulos.TIPO_VARIACION_ART ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_caja_operaciones.IDX_OPCAJA_EMP_ALM_TIPO_FECHA
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_caja_operaciones' AND INDEX_NAME = 'IDX_OPCAJA_EMP_ALM_TIPO_FECHA') = 0,
+  'ALTER TABLE `fza_caja_operaciones` ADD INDEX `IDX_OPCAJA_EMP_ALM_TIPO_FECHA` (`CODIGO_EMP_OPCAJA`, `CODIGO_ALM_OPCAJA`, `TIPO_OPERACION_OPCAJA`, `FECHA_OPERACION_OPCAJA`)',
+  'SELECT "fza_caja_operaciones.IDX_OPCAJA_EMP_ALM_TIPO_FECHA ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_caja_operaciones.IDX_OPCAJA_EMP_TIPO_INSTANTE
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_caja_operaciones' AND INDEX_NAME = 'IDX_OPCAJA_EMP_TIPO_INSTANTE') = 0,
+  'ALTER TABLE `fza_caja_operaciones` ADD INDEX `IDX_OPCAJA_EMP_TIPO_INSTANTE` (`CODIGO_EMP_OPCAJA`, `TIPO_OPERACION_OPCAJA`, `INSTANTE_ALTA`)',
+  'SELECT "fza_caja_operaciones.IDX_OPCAJA_EMP_TIPO_INSTANTE ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_compras_sesiones.IDX_SES_EMP_INSTANTE
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_compras_sesiones' AND INDEX_NAME = 'IDX_SES_EMP_INSTANTE') = 0,
+  'ALTER TABLE `fza_compras_sesiones` ADD INDEX `IDX_SES_EMP_INSTANTE` (`CODIGO_EMP_SES`, `INSTANTE_ALTA`)',
+  'SELECT "fza_compras_sesiones.IDX_SES_EMP_INSTANTE ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_devoluciones_compra.IDX_DEVC_EMP_INSTANTE
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_devoluciones_compra' AND INDEX_NAME = 'IDX_DEVC_EMP_INSTANTE') = 0,
+  'ALTER TABLE `fza_devoluciones_compra` ADD INDEX `IDX_DEVC_EMP_INSTANTE` (`CODIGO_EMP_DEVC`, `INSTANTE_ALTA`)',
+  'SELECT "fza_devoluciones_compra.IDX_DEVC_EMP_INSTANTE ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_documentos_trabajo_lineas.UQ_DTL_DTR_ORIGEN
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_documentos_trabajo_lineas' AND INDEX_NAME = 'UQ_DTL_DTR_ORIGEN') = 0,
+  'ALTER TABLE `fza_documentos_trabajo_lineas` ADD UNIQUE INDEX `UQ_DTL_DTR_ORIGEN` (`ID_DTR_DTL`, `CODIGO_EMP_ORIGEN_DTL`, `TIPO_DOCUMENTO_ORIGEN_DTL`, `SERIE_DOCUMENTO_ORIGEN_DTL`, `NUMERO_DOCUMENTO_ORIGEN_DTL`, `LINEA_DOCUMENTO_ORIGEN_DTL`)',
+  'SELECT "fza_documentos_trabajo_lineas.UQ_DTL_DTR_ORIGEN ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_facturas.IDX_FAC_EMP_INSTANTE
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_facturas' AND INDEX_NAME = 'IDX_FAC_EMP_INSTANTE') = 0,
+  'ALTER TABLE `fza_facturas` ADD INDEX `IDX_FAC_EMP_INSTANTE` (`CODIGO_EMP_FAC`, `INSTANTE_ALTA`)',
+  'SELECT "fza_facturas.IDX_FAC_EMP_INSTANTE ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_facturas_compra.IDX_FACC_EMP_INSTANTE
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_facturas_compra' AND INDEX_NAME = 'IDX_FACC_EMP_INSTANTE') = 0,
+  'ALTER TABLE `fza_facturas_compra` ADD INDEX `IDX_FACC_EMP_INSTANTE` (`CODIGO_EMP_FACC`, `INSTANTE_ALTA`)',
+  'SELECT "fza_facturas_compra.IDX_FACC_EMP_INSTANTE ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_inventarios.IDX_INV_EMP_INSTANTE
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_inventarios' AND INDEX_NAME = 'IDX_INV_EMP_INSTANTE') = 0,
+  'ALTER TABLE `fza_inventarios` ADD INDEX `IDX_INV_EMP_INSTANTE` (`CODIGO_EMP_INV`, `INSTANTE_ALTA`)',
+  'SELECT "fza_inventarios.IDX_INV_EMP_INSTANTE ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_movimientos_almacen.IDX_MOV_ALM_UNIDAD_ACTIVO_FECHA
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_movimientos_almacen' AND INDEX_NAME = 'IDX_MOV_ALM_UNIDAD_ACTIVO_FECHA') = 0,
+  'ALTER TABLE `fza_movimientos_almacen` ADD INDEX `IDX_MOV_ALM_UNIDAD_ACTIVO_FECHA` (`CODIGO_ALM_MOV`, `CODIGO_UNIDAD_MOV`, `ESACTIVO_MOV`, `FECHA_MOV`, `INSTANTE_ALTA`, `NUMERO_MOV`)',
+  'SELECT "fza_movimientos_almacen.IDX_MOV_ALM_UNIDAD_ACTIVO_FECHA ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_movimientos_almacen.IDX_MOV_SERIE_DOC_NUMERO_DOC_TIPO_DOC_LINEA
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_movimientos_almacen' AND INDEX_NAME = 'IDX_MOV_SERIE_DOC_NUMERO_DOC_TIPO_DOC_LINEA') = 0,
+  'ALTER TABLE `fza_movimientos_almacen` ADD INDEX `IDX_MOV_SERIE_DOC_NUMERO_DOC_TIPO_DOC_LINEA` (`SERIE_DOC_MOV`, `NUMERO_DOC_MOV`, `TIPO_DOC_MOV`, `LINEA_MOV`)',
+  'SELECT "fza_movimientos_almacen.IDX_MOV_SERIE_DOC_NUMERO_DOC_TIPO_DOC_LINEA ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_movimientos_recalculos_pendientes.IDX_MOVREC_GRUPO
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_movimientos_recalculos_pendientes' AND INDEX_NAME = 'IDX_MOVREC_GRUPO') = 0,
+  'ALTER TABLE `fza_movimientos_recalculos_pendientes` ADD INDEX `IDX_MOVREC_GRUPO` (`CODIGO_ALM_MOVREC`, `CODIGO_UNIDAD_MOVREC`, `ESPROCESADO_MOVREC`, `ESTADO_MOVREC`, `INSTANTE_DESDE_MOVREC`)',
+  'SELECT "fza_movimientos_recalculos_pendientes.IDX_MOVREC_GRUPO ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_movimientos_recalculos_pendientes.IDX_MOVREC_RECLAMAR
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_movimientos_recalculos_pendientes' AND INDEX_NAME = 'IDX_MOVREC_RECLAMAR') = 0,
+  'ALTER TABLE `fza_movimientos_recalculos_pendientes` ADD INDEX `IDX_MOVREC_RECLAMAR` (`ESPROCESADO_MOVREC`, `ESTADO_MOVREC`, `INSTANTE_PROXIMO_INTENTO_MOVREC`, `INSTANTE_ALTA`)',
+  'SELECT "fza_movimientos_recalculos_pendientes.IDX_MOVREC_RECLAMAR ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_movimientos_recalculos_pendientes.IDX_MOVREC_TOKEN
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_movimientos_recalculos_pendientes' AND INDEX_NAME = 'IDX_MOVREC_TOKEN') = 0,
+  'ALTER TABLE `fza_movimientos_recalculos_pendientes` ADD INDEX `IDX_MOVREC_TOKEN` (`TOKEN_RECLAMACION_MOVREC`, `ESTADO_MOVREC`)',
+  'SELECT "fza_movimientos_recalculos_pendientes.IDX_MOVREC_TOKEN ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_pedidos.IDX_PED_EMP_INSTANTE
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_pedidos' AND INDEX_NAME = 'IDX_PED_EMP_INSTANTE') = 0,
+  'ALTER TABLE `fza_pedidos` ADD INDEX `IDX_PED_EMP_INSTANTE` (`CODIGO_EMP_PED`, `INSTANTE_ALTA`)',
+  'SELECT "fza_pedidos.IDX_PED_EMP_INSTANTE ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_pedidos_compra.IDX_PEDC_EMP_INSTANTE
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_pedidos_compra' AND INDEX_NAME = 'IDX_PEDC_EMP_INSTANTE') = 0,
+  'ALTER TABLE `fza_pedidos_compra` ADD INDEX `IDX_PEDC_EMP_INSTANTE` (`CODIGO_EMP_PEDC`, `INSTANTE_ALTA`)',
+  'SELECT "fza_pedidos_compra.IDX_PEDC_EMP_INSTANTE ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_prestashop_cola_eventos.IDX_PSCEV_INICIO_RESULTADO
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_prestashop_cola_eventos' AND INDEX_NAME = 'IDX_PSCEV_INICIO_RESULTADO') = 0,
+  'ALTER TABLE `fza_prestashop_cola_eventos` ADD INDEX `IDX_PSCEV_INICIO_RESULTADO` (`INSTANTE_INICIO_PSCEV`, `RESULTADO_PSCEV`)',
+  'SELECT "fza_prestashop_cola_eventos.IDX_PSCEV_INICIO_RESULTADO ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_prestashop_cola_eventos.IDX_PSCEV_PSCOLA_ID
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_prestashop_cola_eventos' AND INDEX_NAME = 'IDX_PSCEV_PSCOLA_ID') = 0,
+  'ALTER TABLE `fza_prestashop_cola_eventos` ADD INDEX `IDX_PSCEV_PSCOLA_ID` (`ID_PSCOLA_PSCEV`, `ID_PSCEV`)',
+  'SELECT "fza_prestashop_cola_eventos.IDX_PSCEV_PSCOLA_ID ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_tarifas_cambios.IDX_TARC_INSTANTE
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_tarifas_cambios' AND INDEX_NAME = 'IDX_TARC_INSTANTE') = 0,
+  'ALTER TABLE `fza_tarifas_cambios` ADD INDEX `IDX_TARC_INSTANTE` (`INSTANTE_ALTA`)',
+  'SELECT "fza_tarifas_cambios.IDX_TARC_INSTANTE ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_tarifas_descuento_condiciones.IDX_TARDCO_PROPIEDAD
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_tarifas_descuento_condiciones' AND INDEX_NAME = 'IDX_TARDCO_PROPIEDAD') = 0,
+  'ALTER TABLE `fza_tarifas_descuento_condiciones` ADD INDEX `IDX_TARDCO_PROPIEDAD` (`CODIGO_PROP_TARDCO`)',
+  'SELECT "fza_tarifas_descuento_condiciones.IDX_TARDCO_PROPIEDAD ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_tarifas_descuento_valores.IDX_TARDVA_VALOR
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_tarifas_descuento_valores' AND INDEX_NAME = 'IDX_TARDVA_VALOR') = 0,
+  'ALTER TABLE `fza_tarifas_descuento_valores` ADD INDEX `IDX_TARDVA_VALOR` (`ID_PV_TARDVA`)',
+  'SELECT "fza_tarifas_descuento_valores.IDX_TARDVA_VALOR ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_traspasos_solicitudes.IDX_TRSOL_EMP_INSTANTE
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_traspasos_solicitudes' AND INDEX_NAME = 'IDX_TRSOL_EMP_INSTANTE') = 0,
+  'ALTER TABLE `fza_traspasos_solicitudes` ADD INDEX `IDX_TRSOL_EMP_INSTANTE` (`CODIGO_EMP_TRSOL`, `INSTANTE_ALTA`)',
+  'SELECT "fza_traspasos_solicitudes.IDX_TRSOL_EMP_INSTANTE ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_traspasos_solicitudes.IDX_TRSOL_TIPO_INSTANTE
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_traspasos_solicitudes' AND INDEX_NAME = 'IDX_TRSOL_TIPO_INSTANTE') = 0,
+  'ALTER TABLE `fza_traspasos_solicitudes` ADD INDEX `IDX_TRSOL_TIPO_INSTANTE` (`TIPO_TRSOL`, `INSTANTE_ALTA`)',
+  'SELECT "fza_traspasos_solicitudes.IDX_TRSOL_TIPO_INSTANTE ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_ventas_ws_cola_intentos.IDX_VWSCI_INICIO_RESULTADO
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_ventas_ws_cola_intentos' AND INDEX_NAME = 'IDX_VWSCI_INICIO_RESULTADO') = 0,
+  'ALTER TABLE `fza_ventas_ws_cola_intentos` ADD INDEX `IDX_VWSCI_INICIO_RESULTADO` (`INSTANTE_INICIO_VWSCI`, `RESULTADO_VWSCI`)',
+  'SELECT "fza_ventas_ws_cola_intentos.IDX_VWSCI_INICIO_RESULTADO ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+-- Indice fza_ventas_ws_cola_intentos.IDX_VWSCI_VWSC_ID
+SET @sql := IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'fza_ventas_ws_cola_intentos' AND INDEX_NAME = 'IDX_VWSCI_VWSC_ID') = 0,
+  'ALTER TABLE `fza_ventas_ws_cola_intentos` ADD INDEX `IDX_VWSCI_VWSC_ID` (`ID_VWSC_VWSCI`, `ID_VWSCI`)',
+  'SELECT "fza_ventas_ws_cola_intentos.IDX_VWSCI_VWSC_ID ya existe"');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;

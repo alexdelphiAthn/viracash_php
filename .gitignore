@@ -1,0 +1,29 @@
+# Configuración local y credenciales
+/config.php
+/config_*.php
+!/config_ejemplo.php
+.env
+.env.*
+!.env.example
+
+# Certificados, secretos y estado de ejecución
+/privado/certificados/
+/privado/declaraciones_sif_cache/
+/privado/idioma.json
+/privado/idioma.json.*
+*.pfx
+*.p12
+*.pem
+*.key
+
+# Salidas de herramientas con datos del entorno
+/herramientas/*.json
+/herramientas/corregir_caso_datos*.sql
+
+# Temporales y registros
+*.log
+*.tmp
+*.bak
+*~
+Thumbs.db
+.DS_Store
